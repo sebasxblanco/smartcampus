@@ -1,0 +1,120 @@
+name: CI/CD SmartCampus
+
+on:
+  push:
+  pull_request:
+
+# Variables del pipeline. Las de configuración salen de las variables del
+# repositorio (Settings > Secrets and variables > Actions > Variables), con un
+# valor por defecto si no existen. La contraseña es un Secret: nunca va aquí.
+env:
+  IMAGE_NAME: smartcampus
+  APP_ENV: ${{ vars.APP_ENV || 'production' }}
+  DB_NAME: ${{ vars.DB_NAME || 'smartcampus' }}
+  DB_USER: ${{ vars.DB_USER || 'smartcampus' }}
+
+jobs:
+  quality:
+    name: Calidad (Ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements-dev.txt
+
+      - name: Formato y calidad (lo mismo que el pre-commit)
+        run: |
+          ruff format --check .
+          ruff check .
+
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    needs: quality
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Entre comillas: sin ellas, YAML leería 3.10 como el número 3.1.
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements-dev.txt
+
+      - name: Tests unitarios y de integración
+        run: pytest -v
+
+  build:
+    name: Build y validación de la imagen
+    # Solo se construye si los tests han pasado en las dos versiones de Python.
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build de la imagen
+        run: docker build -t "$IMAGE_NAME:$GITHUB_SHA" -t "$IMAGE_NAME:latest" .
+
+      - name: Crear .env desde variables y Secrets
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: sh scripts/write-env.sh
+
+      - name: Validación (la imagen arranca con PostgreSQL y responde)
+        run: |
+          docker compose up -d --wait
+          curl --fail --silent http://localhost:8000/health
+          curl --fail --silent -X POST http://localhost:8000/rooms \
+            -H "Content-Type: application/json" \
+            -d '{"nombre": "Aula CI", "edificio": "A", "capacidad": 10}'
+          curl --fail --silent http://localhost:8000/rooms
+
+      - name: Logs si falla la validación
+        if: failure()
+        run: docker compose logs
+
+      - name: Parar el entorno de validación
+        if: always()
+        run: docker compose down -v
+
+  deploy:
+    name: Despliegue (runner propio)
+    needs: build
+    # Solo despliega lo que entra en main, nunca desde un Pull Request.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    env:
+      # Nombre y puerto propios para no chocar con el entorno de desarrollo local.
+      COMPOSE_PROJECT_NAME: smartcampus-prod
+      APP_PORT: ${{ vars.DEPLOY_PORT || '8080' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Crear .env desde variables y Secrets
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: sh scripts/write-env.sh
+
+      - name: Desplegar con Docker Compose
+        run: docker compose up -d --build --wait
+
+      - name: Comprobar el despliegue
+        run: curl --fail --silent "http://localhost:$APP_PORT/health"
