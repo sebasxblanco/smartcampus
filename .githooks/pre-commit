@@ -1,0 +1,17 @@
+#!/bin/sh
+# pre-commit: formato, calidad y tests unitarios. Si algo falla, el commit no se crea.
+. .githooks/_python.sh
+
+echo "🔎 pre-commit: comprobando formato y calidad (Ruff)..."
+if ! $PY -m ruff format --check . || ! $PY -m ruff check .; then
+    echo "❌ Commit rechazado: el código no pasa Ruff (prueba 'ruff format .' y 'ruff check --fix .')"
+    exit 1
+fi
+
+echo "🧪 pre-commit: pasando tests unitarios..."
+if ! $PY -m pytest -m unit -q; then
+    echo "❌ Commit rechazado: hay tests unitarios fallidos"
+    exit 1
+fi
+
+echo "✅ pre-commit superado"

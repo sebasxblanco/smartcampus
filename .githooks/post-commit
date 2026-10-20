@@ -1,0 +1,5 @@
+#!/bin/sh
+# post-commit: el commit ya existe, así que no puede bloquear. Solo lo registra.
+git log -1 --format="Autor: %an <%ae> | Fecha: %ad | Hash: %H | Mensaje: %s" \
+    --date=iso >> commit-log.txt
+echo "📝 Commit registrado en commit-log.txt"
