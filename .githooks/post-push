@@ -1,0 +1,9 @@
+#!/bin/sh
+# post-push: Git no tiene este hook. Lo lanza el alias "git pushx" (ver
+# scripts/install-hooks.sh) solo si el push ha terminado bien.
+echo "🚀 Cambios enviados correctamente al repositorio remoto."
+
+# Tarea extra: deja constancia del último push en un fichero de información.
+echo "$(date -Iseconds) | rama $(git branch --show-current) | $(git rev-parse --short HEAD)" \
+    >> push-log.txt
+echo "📝 Push registrado en push-log.txt"

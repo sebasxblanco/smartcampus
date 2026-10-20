@@ -10,3 +10,7 @@ __pycache__/
 
 # Base de datos local
 *.db
+
+# Registros que generan los hooks en cada equipo
+commit-log.txt
+push-log.txt

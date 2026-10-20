@@ -1,0 +1,11 @@
+#!/bin/sh
+# pre-push: tests unitarios y de integración. Si alguno falla, el push no se envía.
+. .githooks/_python.sh
+
+echo "🧪 pre-push: pasando tests unitarios y de integración..."
+if ! $PY -m pytest -m "unit or integration" -q; then
+    echo "❌ Push rechazado: existen tests fallidos"
+    exit 1
+fi
+
+echo "✅ Todos los tests superados"
