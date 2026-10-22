@@ -160,12 +160,13 @@ Capturas en `docs/evidencias/`.
 
 | Evidencia | Prueba | Captura |
 |---|---|---|
-| Tests pasando | `pytest -v` | `docs/evidencias/tests.png` |
-| pre-commit bloquea / deja pasar | Commit con código mal formateado · commit limpio | `docs/evidencias/hooks-pre-commit.png` |
-| post-commit | `cat commit-log.txt` | `docs/evidencias/hooks-post-commit.png` |
-| pre-push bloquea / deja pasar · post-push | `git pushx` con un test roto · con todo en verde | `docs/evidencias/hooks-push.png` |
-| Imagen Docker | `docker build` y `docker run` | `docs/evidencias/docker.png` |
-| Compose | `docker compose ps` con los servicios `healthy` | `docs/evidencias/compose.png` |
-| Pipeline en verde y matrix | Pestaña Actions | `docs/evidencias/pipeline.png` |
-| Secrets | Log del pipeline con `***` | `docs/evidencias/secrets.png` |
-| Despliegue | Job `deploy` y `/health` en el puerto de producción | `docs/evidencias/deploy.png` |
+| Tests pasando | `pytest -v` | [docs/evidencias/tests.png](docs/evidencias/tests.png) |
+| pre-commit bloquea / deja pasar | Commit con código mal formateado · commit limpio | [docs/evidencias/hooks-pre-commit.png](docs/evidencias/hooks-pre-commit.png) |
+| post-commit | `cat commit-log.txt` | [docs/evidencias/hooks-post-commit.png](docs/evidencias/hooks-post-commit.png) |
+| pre-push bloquea / deja pasar · post-push | `git pushx` con un test roto · con todo en verde | [docs/evidencias/hooks-push.png](docs/evidencias/hooks-push.png) |
+| Imagen Docker | `docker build` y `docker run` | [docs/evidencias/docker.png](docs/evidencias/docker.png) |
+| Compose | `docker compose ps` con los servicios `healthy` | [docs/evidencias/compose.png](docs/evidencias/compose.png) |
+| Pipeline en verde y matrix | Pestaña Actions | [docs/evidencias/pipeline.png](docs/evidencias/pipeline.png) |
+| Disparo por push y por pull request | `gh run list` | [docs/evidencias/pipeline-ejecuciones.png](docs/evidencias/pipeline-ejecuciones.png) |
+| Secrets | Log del pipeline con `***` | [docs/evidencias/secrets.png](docs/evidencias/secrets.png) |
+| Despliegue | Job `deploy` y `/health` en el puerto de producción | [docs/evidencias/deploy.png](docs/evidencias/deploy.png) |
