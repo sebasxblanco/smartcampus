@@ -170,3 +170,4 @@ Capturas en `docs/evidencias/`.
 | Disparo por push y por pull request | `gh run list` | [docs/evidencias/pipeline-ejecuciones.png](docs/evidencias/pipeline-ejecuciones.png) |
 | Secrets | Log del pipeline con `***` | [docs/evidencias/secrets.png](docs/evidencias/secrets.png) |
 | Despliegue | Job `deploy` y `/health` en el puerto de producción | [docs/evidencias/deploy.png](docs/evidencias/deploy.png) |
+| Pull Request fusionado | `gh pr merge` del PR #5 y `git pull` | [docs/evidencias/pull.png](docs/evidencias/pull.png) |
