@@ -150,7 +150,8 @@ quality ──▶ test (3.11) ──┐
 El job `deploy` corre en un **self-hosted runner** instalado en el equipo que hace de servidor (opción A del enunciado). El entorno es persistente: los contenedores siguen en marcha cuando el pipeline termina, a diferencia de un runner de GitHub, que se destruye al acabar el job.
 
 - Proyecto de Compose `smartcampus-prod` y puerto `DEPLOY_PORT` (8080 por defecto), para no chocar con el entorno de desarrollo.
-- Solo despliega lo que entra en `main` por `push`. El repositorio es privado: GitHub desaconseja runners propios en repos públicos, porque un PR podría ejecutar código en la máquina.
+- Solo despliega lo que entra en `main` por `push`, nunca desde un Pull Request.
+- El repositorio es público. GitHub desaconseja runners propios en repos públicos, porque un PR podría ejecutar código en la máquina, así que hay dos barreras: el job `deploy` no se ejecuta en Pull Requests y en Settings → Actions → General está activado "Require approval for all external contributors", de modo que ningún workflow de un colaborador externo arranca sin aprobación manual.
 
 Instalación del runner: Settings → Actions → Runners → New self-hosted runner (Linux x64) y seguir los comandos que muestra GitHub (`config.sh` con el token y `run.sh`, o `svc.sh install` para dejarlo como servicio). El usuario del runner tiene que poder usar Docker.
 
@@ -160,10 +161,11 @@ Capturas en `docs/evidencias/`.
 
 | Evidencia | Prueba | Captura |
 |---|---|---|
-| Tests pasando | `pytest -v` | [docs/evidencias/tests.png](docs/evidencias/tests.png) |
+| Tests pasando | `pytest` · `pytest -m unit` · `pytest -m integration` | [docs/evidencias/tests.png](docs/evidencias/tests.png) |
 | pre-commit bloquea / deja pasar | Commit con código mal formateado · commit limpio | [docs/evidencias/hooks-pre-commit.png](docs/evidencias/hooks-pre-commit.png) |
 | post-commit | `cat commit-log.txt` | [docs/evidencias/hooks-post-commit.png](docs/evidencias/hooks-post-commit.png) |
-| pre-push bloquea / deja pasar · post-push | `git pushx` con un test roto · con todo en verde | [docs/evidencias/hooks-push.png](docs/evidencias/hooks-push.png) |
+| pre-push bloquea | `git pushx` con un test roto | [docs/evidencias/hooks-push.png](docs/evidencias/hooks-push.png) |
+| pre-push deja pasar · post-push | `git pushx` con todo en verde | [docs/evidencias/hooks-post-push.png](docs/evidencias/hooks-post-push.png) |
 | Imagen Docker | `docker build` y `docker run` | [docs/evidencias/docker.png](docs/evidencias/docker.png) |
 | Compose | `docker compose ps` con los servicios `healthy` | [docs/evidencias/compose.png](docs/evidencias/compose.png) |
 | Pipeline en verde y matrix | Pestaña Actions | [docs/evidencias/pipeline.png](docs/evidencias/pipeline.png) |
